@@ -29,8 +29,8 @@ router.delete("/:id/productos/:id_producto", (req, res) => {
 })
 
 router.post("/", (req, res) => {
-  const cart = req.body
-  return shoppingCart.save(cart)
+  const cart = newCart()
+  res.send(shoppingCart.save(cart))
 })
 
 class Cart {
