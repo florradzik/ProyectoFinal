@@ -9,25 +9,29 @@ class Contenedor {
     try {
       this.read()
     } catch (e) {
-      console.log("No se encontro elarchivo")
+      console.log("No se encontro el file")
       console.log("Creando uno nuevo")
-      console.log(e)
       this.write()
     }
   }
 
   write() {
-    fs.promises.write
     fs.writeFileSync(this.filename, JSON.stringify(this.data))
   }
   read() {
-    fs.promises
-      .readFile(this.filename)
-      .then((data) => {
-        this.data = JSON.parse(data)
-        console.log("Data loaded!")
-      })
-      .catch((e) => console.log(e))
+    this.data = JSON.parse(fs.readFileSync(this.filename))
+  }
+
+  async getAllPromise() {
+    try {
+      const allContent = await fs.promises.readFile(this.filename, "utf-8")
+      const content = JSON.parse(allContent)
+
+      return content
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
   }
 
   getLastID() {
@@ -47,13 +51,14 @@ class Contenedor {
     this.write()
   }
 
-  getByID(id) {
-    return this.data.find((p) => p.id == id)
+  update(obj) {
+    const idx = this.data.findIndex((p) => p.id == obj.id)
+    this.data[idx] = obj
+    this.write()
   }
 
-  getByRandom() {
-    let index = Math.round(Math.random() * this.data.length)
-    return this.data[index]
+  getByID(id) {
+    return this.data.find((p) => p.id == id)
   }
 
   getAll() {
@@ -63,11 +68,13 @@ class Contenedor {
   deleteById(id) {
     const idx = this.data.findIndex((p) => p.id == id)
     this.data.splice(idx, 1)
+
     this.write()
   }
 
   deleteAll() {
     this.data = []
+
     this.write()
   }
 }

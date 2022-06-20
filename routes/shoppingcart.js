@@ -1,37 +1,12 @@
 const { Router } = require("express")
 const Container = require("../filemanagment")
-const { products } = require("./products")
+const fs = require("fs")
+const { type } = require("os")
+let totalProducts = new Container("products.json")
 
 const shoppingCart = new Container("shoppingcart.json")
-shoppingCart.init()
 
 const router = Router()
-
-router.get("/:id/productos", (req, res) => {
-  const id = req.params.id
-  const cart = shoppingCart.getByID(id)
-  res.send(cart.getProducts())
-})
-
-router.post("/:id/productos/:id_producto", (req, res) => {
-  const id = req.params.id
-  const id_producto = req.params.id_producto
-  const product = products.getByID(id_producto)
-  const cart = shoppingCart.getByID(id)
-  res.send(cart.addProduct(product))
-})
-
-router.delete("/:id/productos/:id_producto", (req, res) => {
-  const id = req.params.id
-  const id_producto = req.params.id_producto
-  const cart = shoppingCart.getByID(id)
-  res.send(cart.removeProduct(id_producto))
-})
-
-router.post("/", (req, res) => {
-  const cart = newCart()
-  res.send(shoppingCart.save(cart))
-})
 
 class Cart {
   constructor() {
@@ -39,20 +14,45 @@ class Cart {
     this.timestamp = Date.now()
     this.products = []
   }
-
-  getProducts() {
-    return this.products
-  }
-
-  addProduct(obj) {
-    return this.products.push(obj)
-  }
-
-  removeProduct(id) {
-    const idx = this.products.findIndex((p) => p.id === id)
-    if (idx != -1) this.products.splice(idx, 1)
-  }
 }
 
+function getProducts(obj) {
+  return obj.products
+}
+
+function removeProduct(obj, id) {
+  const idx = obj.products.findIndex((p) => p.id === id)
+  if (idx != -1) obj.products.splice(idx, 1)
+}
+
+router.get("/:id/productos", (req, res) => {
+  const id = req.params.id
+  const cart = shoppingCart.getByID(id)
+  res.send(getProducts(cart))
+})
+
+router.post("/:id/productos/:id_producto", (req, res) => {
+  const id = req.params.id
+  const id_producto = req.params.id_producto
+  const product = totalProducts.getByID(id_producto)
+  if (product) {
+    const cart = shoppingCart.getByID(id)
+    cart.products.push(product)
+    shoppingCart.update(cart)
+    res.sendStatus(200)
+  } else res.send("El id del producto no existe")
+})
+
+router.delete("/:id/productos/:id_producto", (req, res) => {
+  const id = req.params.id
+  const id_producto = req.params.id_producto
+  const cart = shoppingCart.getByID(id)
+  res.send(removeProduct(cart, id_producto))
+})
+
+router.post("/", (req, res) => {
+  const cart = new Cart()
+  res.send(shoppingCart.save(cart))
+})
+
 module.exports = router
-module.exports = Cart

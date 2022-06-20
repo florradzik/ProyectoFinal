@@ -2,7 +2,6 @@ const { Router } = require("express")
 const Container = require("../filemanagment")
 
 const products = new Container("products.json")
-products.init()
 
 const router = Router()
 
@@ -15,6 +14,7 @@ router.get("/:id?", (req, res) => {
 router.post("/", (req, res) => {
   const admin = req.headers.admin
   if (admin) {
+    console.log(req.body)
     const product = new Product(req.body)
     res.send(products.save(product))
   } else {
@@ -49,8 +49,9 @@ router.delete("/:id", (req, res) => {
 
 class Product {
   constructor(obj) {
+    console.log(obj)
     //id dado por el archivo
-    timestamp = Date.now()
+    this.timestamp = Date.now()
     this.name = obj.name
     this.description = obj.description
     this.code = obj.code
@@ -60,5 +61,3 @@ class Product {
   }
 }
 module.exports = router
-module.exports = products
-module.exports = Product
