@@ -1,7 +1,6 @@
 const { Router } = require("express")
 const Container = require("../filemanagment")
 const fs = require("fs")
-const { type } = require("os")
 let totalProducts = new Container("products.json")
 
 const shoppingCart = new Container("shoppingcart.json")
@@ -47,7 +46,9 @@ router.delete("/:id/productos/:id_producto", (req, res) => {
   const id = req.params.id
   const id_producto = req.params.id_producto
   const cart = shoppingCart.getByID(id)
-  res.send(removeProduct(cart, id_producto))
+  if (cart) {removeProduct(cart, id_producto)
+  res.sendStatus(200)} // como mandar algo más claro?
+  else res.sendStatus(400)
 })
 
 router.post("/", (req, res) => {
