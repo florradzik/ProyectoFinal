@@ -1,4 +1,4 @@
-const ContenedorMemory = require("../../container/contMemory")
+const ContenedorMemory = require("../../containers/contMemory")
 
 class CartMemoryDAO extends ContenedorMemory {
   constructor() {

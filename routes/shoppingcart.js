@@ -1,5 +1,5 @@
 const { Router } = require("express")
-const FactoryDAO = require("../dao/index")
+const FactoryDAO = require("../daos/index")
 const DAO = FactoryDAO()
 
 const router = Router()
