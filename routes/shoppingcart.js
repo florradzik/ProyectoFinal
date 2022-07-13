@@ -1,59 +1,48 @@
 const { Router } = require("express")
-const Container = require("../filemanagment")
-const fs = require("fs")
-let totalProducts = new Container("products.json")
-
-const shoppingCart = new Container("shoppingcart.json")
+const FactoryDAO = require("../dao/index")
+const DAO = FactoryDAO()
 
 const router = Router()
 
-class Cart {
-  constructor() {
-    //id en el archivo
-    this.timestamp = Date.now()
-    this.products = []
-  }
-}
-
-function getProducts(obj) {
-  return obj.products
-}
-
-function removeProduct(obj, id) {
-  const idx = obj.products.findIndex((p) => p.id === id)
-  if (idx != -1) obj.products.splice(idx, 1)
-}
 
 router.get("/:id/productos", (req, res) => {
   const id = req.params.id
-  const cart = shoppingCart.getByID(id)
-  res.send(getProducts(cart))
+  const cart = await DAO.cart.getByID(id)
+  res.json(cart.products)
 })
 
 router.post("/:id/productos/:id_producto", (req, res) => {
   const id = req.params.id
   const id_producto = req.params.id_producto
-  const product = totalProducts.getByID(id_producto)
-  if (product) {
-    const cart = shoppingCart.getByID(id)
-    cart.products.push(product)
-    shoppingCart.update(cart)
-    res.sendStatus(200)
-  } else res.send("El id del producto no existe")
+  const product = await DAO.product.getByID(id_producto)  // obteniendo datos del producto
+  const cart = await DAO.cart.getByID(id) //obteniendo el carrito
+  cart.products.push(product) //ingresando el nuevo producto al arreglo del carrito
+  const updatedCart = await DAO.cart.editById(cart , id) 
+  res.json("Se agrego correctamente el producto al carrito")
 })
 
 router.delete("/:id/productos/:id_producto", (req, res) => {
   const id = req.params.id
   const id_producto = req.params.id_producto
-  const cart = shoppingCart.getByID(id)
-  if (cart) {removeProduct(cart, id_producto)
-  res.sendStatus(200)} // como mandar algo más claro?
-  else res.sendStatus(400)
+  const cart = await DAO.cart.getByID(id) //obteniendo el carrito
+  const idx = cart.products.findIndex((obj) => obj.id == id_producto)
+  cart.products.splice(idx, 1)
+  const updatedCart = await DAO.cart.editById(cart , id) 
+  res.json('Se elimino el producto del carrito sin problemas')
 })
 
 router.post("/", (req, res) => {
-  const cart = new Cart()
-  res.send(shoppingCart.save(cart))
+  const cart = {...req.body , ... {products: []}}
+  res.json(await DAO.cart.save(cart))
+})
+
+router.get('/', (req,res)=> {
+  res.send(await DAO.cart.getAll())
+})
+
+router.delete('/:id', (req,res) => {
+  const id = req.params.id
+  await DAO.cart.deleteByID(id)
 })
 
 module.exports = router
