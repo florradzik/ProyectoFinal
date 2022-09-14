@@ -1,0 +1,19 @@
+<%- include( 'templates/head' ) %>
+<body>
+    <a href="/api/user/register">
+        <button type="button" class="btn btn-success me-4">Registrarse</button>
+      </a>
+    <h1> Ingrese sus datos</h1>
+<div class="row">
+    <form action="/api/user/login" method="POST"> 
+        <input name="email">
+        <input name="password">
+
+        <button type="submit">Ingresar</button>
+
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy" crossorigin="anonymous"></script>
+</body>
+</html>
